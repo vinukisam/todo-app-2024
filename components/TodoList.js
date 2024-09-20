@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, Button, FlatList, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import TodoItem from './TodoItem';
 
@@ -14,6 +14,7 @@ export default function TodoList({ isDarkMode, toggleTheme }) {
   const [newTask, setNewTask] = useState({ title: '', description: '', date: new Date() });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [filter, setFilter] = useState('all');  // Default view shows all tasks
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Add Task Function
   function addTask() {
@@ -40,12 +41,14 @@ export default function TodoList({ isDarkMode, toggleTheme }) {
     const taskDate = new Date(task.date);
     taskDate.setHours(0, 0, 0, 0);
 
+    const matchesSearchQuery = task.title.toLowerCase().includes(searchQuery.toLowerCase());
+
     if (filter === 'today') {
-      return taskDate.getTime() === today.getTime();
+      return taskDate.getTime() === today.getTime() && matchesSearchQuery;
     } else if (filter === 'completed') {
-      return task.completed;
+      return task.completed && matchesSearchQuery;
     } else {
-      return true; // For 'all' filter
+      return matchesSearchQuery; // For 'all' filter
     }
   });
 
@@ -75,20 +78,31 @@ export default function TodoList({ isDarkMode, toggleTheme }) {
 
       <Text style={[styles.heading, textStyle]}>My TO DOs</Text>
 
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search tasks"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+
       <TouchableOpacity style={styles.showAllButton} onPress={() => setFilter('all')}>
         <Text style={styles.showAllText}>Show All</Text>
       </TouchableOpacity>
 
       <View style={styles.todoListContainer}>
-        {filteredTasks.map(task => (
-          <TodoItem
-            key={task.id}
-            task={task}
-            deleteTask={deleteTask}
-            toggleCompleted={toggleCompleted}
-            isDarkMode={isDarkMode}
-          />
-        ))}
+        <FlatList
+          data={filteredTasks}
+          renderItem={({ item }) => (
+            <TodoItem
+              key={item.id}
+              task={item}
+              deleteTask={deleteTask}
+              toggleCompleted={toggleCompleted}
+              isDarkMode={isDarkMode}
+            />
+          )}
+          keyExtractor={item => item.id.toString()}
+        />
       </View>
 
       {/* Add New Task Button */}
@@ -165,7 +179,7 @@ const styles = StyleSheet.create({
     flex: 1, 
     alignItems: 'center',
     padding: 15,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#add8e6',
     borderRadius: 10,
     marginHorizontal: 5, 
   },
@@ -180,7 +194,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginVertical: 20,
-    textDecorationLine: 'underline',
   },
   lightText: {
     color: '#333',
@@ -191,6 +204,13 @@ const styles = StyleSheet.create({
   todoListContainer: {
     flex: 1,
   },
+  searchInput: {
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
   showAllButton: {
     alignItems: 'center',
     marginVertical: 10,
@@ -200,7 +220,7 @@ const styles = StyleSheet.create({
     color: '#007BFF',
   },
   addButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#1e90ff',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -215,7 +235,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginHorizontal: 20,
     borderRadius: 10,
-    paddingTop:50,
+    paddingBottom:30,
   },
   modalHeading: {
     fontSize: 20,
