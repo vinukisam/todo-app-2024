@@ -16,6 +16,7 @@ export default function TodoList({ isDarkMode, toggleTheme }) {
   const [filter, setFilter] = useState('all');  // Default view shows all tasks
   const [searchQuery, setSearchQuery] = useState('');
 
+  
   // Add Task Function
   function addTask() {
     const task = { ...newTask, id: Date.now(), completed: false };
@@ -29,6 +30,10 @@ export default function TodoList({ isDarkMode, toggleTheme }) {
     setTasks(tasks.filter(task => task.id !== id));
   }
 
+  // Edit Function
+  function editTask(updatedTask) {
+    setTasks(tasks.map(task => (task.id === updatedTask.id ? updatedTask : task)));
+  }
   // Toggle Task Completion Function
   function toggleCompleted(id) {
     setTasks(tasks.map(task => (task.id === id ? { ...task, completed: !task.completed } : task)));
@@ -98,6 +103,7 @@ export default function TodoList({ isDarkMode, toggleTheme }) {
               task={item}
               deleteTask={deleteTask}
               toggleCompleted={toggleCompleted}
+              editTask={editTask} 
               isDarkMode={isDarkMode}
             />
           )}

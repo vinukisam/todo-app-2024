@@ -1,8 +1,19 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, Button } from 'react-native';
 import CheckBox from 'expo-checkbox';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function TodoItem({ task, deleteTask, toggleCompleted, isDarkMode }) {
+export default function TodoItem({ task, deleteTask, toggleCompleted, editTask, isDarkMode }) {
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [updatedTask, setUpdatedTask] = useState({ ...task });
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Function to save the edited task
+  const handleSaveEdit = () => {
+    editTask(updatedTask);
+    setEditModalVisible(false);
+  };
+
   return (
     <View style={[styles.todoItem, isDarkMode ? styles.darkTodoItem : styles.lightTodoItem]}>
       <CheckBox
@@ -21,9 +32,60 @@ export default function TodoItem({ task, deleteTask, toggleCompleted, isDarkMode
           {task.date.toDateString()} {task.date.toLocaleTimeString()}
         </Text>
       </View>
+
+      {/* Edit Button */}
+      <TouchableOpacity style={styles.editButton} onPress={() => setEditModalVisible(true)}>
+        <Text style={styles.editButtonText}>Edit</Text>
+      </TouchableOpacity>
+
+      {/* Delete Button */}
       <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(task.id)}>
         <Text style={styles.deleteButtonText}>Delete</Text>
       </TouchableOpacity>
+
+      {/* Edit Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={editModalVisible}
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <View style={styles.modalView}>
+          <Text style={styles.modalHeading}>Edit Task</Text>
+
+          <TextInput
+            style={styles.textInput}
+            placeholder="Title"
+            value={updatedTask.title}
+            onChangeText={text => setUpdatedTask({ ...updatedTask, title: text })}
+          />
+          <TextInput
+            style={styles.textInput}
+            placeholder="Description"
+            value={updatedTask.description}
+            onChangeText={text => setUpdatedTask({ ...updatedTask, description: text })}
+          />
+
+          <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePickerButton}>
+            <Text style={styles.datePickerText}>Pick Date and Time</Text>
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={updatedTask.date}
+              mode="datetime"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShowDatePicker(false);
+                setUpdatedTask({ ...updatedTask, date: selectedDate || updatedTask.date });
+              }}
+            />
+          )}
+
+          <Button title="Save" onPress={handleSaveEdit} />
+          <Button title="Cancel" onPress={() => setEditModalVisible(false)} color="#FF6347" />
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -77,6 +139,16 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
     color: '#999',
   },
+  editButton: {
+    backgroundColor: '#1e90ff',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  editButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
   deleteButton: {
     backgroundColor: '#1c2841',
     paddingVertical: 6,
@@ -86,5 +158,34 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: '#fff',
     fontSize: 14,
+  },
+  modalView: {
+    backgroundColor: '#fff',
+    padding: 20,
+    marginHorizontal: 20,
+    borderRadius: 10,
+    paddingBottom: 30,
+  },
+  modalHeading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  datePickerButton: {
+    backgroundColor: '#f2f2f2',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  datePickerText: {
+    color: '#333',
   },
 });
