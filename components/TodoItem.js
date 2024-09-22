@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 5,
+    marginRight: 5,
   },
   editButtonText: {
     color: '#fff',
@@ -170,6 +171,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    paddingTop: 50,
   },
   textInput: {
     borderWidth: 1,

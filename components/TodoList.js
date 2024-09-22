@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingVertical: 40,
-    paddingTop: 100,
+    paddingTop: 50,
   },
   lightContainer: {
     backgroundColor: '#fff',
@@ -247,6 +247,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    paddingTop: 50,
   },
   textInput: {
     borderWidth: 1,
